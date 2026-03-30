@@ -387,7 +387,6 @@
       <div id="error" style="display:none" class="error-msg"></div>
     </div>
 
-```
 <div id="results" style="display:none" class="results card">
   <div class="section-label">Recommended Times</div>
   <div class="results-sub" id="results-sub"></div>
@@ -412,7 +411,6 @@
   <div class="divider"></div>
   <div class="info-item"><div class="info-label">Ideal</div><div class="info-value">7.5 – 9h</div></div>
 </div>
-```
 
   </div>
 
@@ -443,12 +441,10 @@
       <div id="nap-error" style="display:none" class="error-msg"></div>
     </div>
 
-```
 <div id="nap-results" style="display:none" class="card nap-card">
   <div class="section-label cyan">Your Nap Window</div>
   <div id="nap-output"></div>
 </div>
-```
 
   </div>
   <!-- CAFFEINE PANEL -->
@@ -1050,6 +1046,14 @@
     if (typeof trackCalc === 'function') trackCalc('caffeine');
   }
 
+  function roundToNearest30(date) {
+    const rounded = new Date(date);
+    const remainder = rounded.getMinutes() % 30;
+    const delta = remainder >= 15 ? 30 - remainder : -remainder;
+    rounded.setMinutes(rounded.getMinutes() + delta, 0, 0);
+    return rounded;
+  }
+
   // -- SET DEFAULTS TO CURRENT TIME --
   (function() {
     const now = new Date();
@@ -1057,17 +1061,17 @@
     const mm = now.getMinutes().toString().padStart(2,'0');
     const currentTime = `${hh}:${mm}`;
     // Sleep: default wake = now + 8h (round to nearest 30)
-    const wake = new Date(now.getTime() + 8*60*60*1000);
+    const wake = roundToNearest30(new Date(now.getTime() + 8*60*60*1000));
     const wh = wake.getHours().toString().padStart(2,'0');
-    const wm = (Math.round(wake.getMinutes()/30)*30 % 60).toString().padStart(2,'0');
+    const wm = wake.getMinutes().toString().padStart(2,'0');
     document.getElementById('timeInput').value = `${wh}:${wm}`;
     // Nap: default = now
     document.getElementById('napInput').value = currentTime;
     // Caffeine wake = now, bed = now + 16h
     document.getElementById('caffWakeInput').value = currentTime;
-    const bed = new Date(now.getTime() + 16*60*60*1000);
+    const bed = roundToNearest30(new Date(now.getTime() + 16*60*60*1000));
     const bh = bed.getHours().toString().padStart(2,'0');
-    const bm = (Math.round(bed.getMinutes()/30)*30 % 60).toString().padStart(2,'0');
+    const bm = bed.getMinutes().toString().padStart(2,'0');
     document.getElementById('caffBedInput').value = `${bh}:${bm}`;
   })();
 
