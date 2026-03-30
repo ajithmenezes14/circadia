@@ -71,19 +71,19 @@ function createHarness() {
     ['panel-sleep'],
     ['panel-nap'],
     ['panel-caff'],
+    ['intro-shell'],
     ['btn-wakeup', 'toggle-btn'],
     ['btn-sleep', 'toggle-btn'],
     ['time-label'],
     ['results'],
     ['info-strip'],
-    ['alarm-panel'],
-    ['alarm-toggle-btn'],
-    ['alarm-time-display'],
-    ['alarm-select-row'],
     ['sleep-options'],
+    ['results-highlight'],
     ['results-sub'],
     ['error'],
     ['timeInput'],
+    ['sleep-lead'],
+    ['sleep-support'],
     ['napInput'],
     ['nap-results'],
     ['nap-output'],
@@ -96,6 +96,9 @@ function createHarness() {
     ['fmt-24', 'fmt-btn'],
     ['buffer-val'],
     ['buffer-slider'],
+    ['info-target'],
+    ['info-cycles'],
+    ['info-buffer'],
     ['caffWakeInput'],
     ['caffBedInput'],
     ['caff-sens-hint'],
@@ -114,6 +117,7 @@ function createHarness() {
   });
 
   const document = {
+    _listeners: {},
     getElementById(id) {
       const element = byId.get(id);
       if (!element) throw new Error(`Unknown element id: ${id}`);
@@ -127,6 +131,10 @@ function createHarness() {
     createElement() {
       return new FakeElement();
     },
+    addEventListener(type, handler) {
+      if (!this._listeners[type]) this._listeners[type] = [];
+      this._listeners[type].push(handler);
+    },
   };
 
   const timeouts = [];
@@ -137,6 +145,15 @@ function createHarness() {
     navigator: {
       clipboard: {
         writeText: () => Promise.resolve(),
+      },
+    },
+    localStorage: {
+      _data: new Map(),
+      getItem(key) {
+        return this._data.has(key) ? this._data.get(key) : null;
+      },
+      setItem(key, value) {
+        this._data.set(key, String(value));
       },
     },
     Notification: {
@@ -214,4 +231,29 @@ test('changing time format refreshes caffeine results', () => {
   const after = document.getElementById('caff-output').innerHTML;
   assert(after.includes('23:00'), 'Expected caffeine output to be reformatted to 24h');
   assert(!after.includes('11:00 PM'), 'Caffeine output should not remain in 12h format after switching to 24h');
+});
+
+test('higher caffeine intake moves the cutoff earlier', () => {
+  const { context, document } = createHarness();
+  document.getElementById('caffWakeInput').value = '07:00';
+  document.getElementById('caffBedInput').value = '23:00';
+  document.querySelectorAll('.caff-drink-btn').forEach((btn) => btn.classList.remove('active'));
+  document.getElementById('custom-mg-input').value = '40';
+  context.calculateCaffeine();
+  const lowIntake = document.getElementById('caff-output').innerHTML;
+
+  document.getElementById('custom-mg-input').value = '400';
+  context.calculateCaffeine();
+  const highIntake = document.getElementById('caff-output').innerHTML;
+
+  assert(lowIntake.includes('last safe cup'), 'Expected a normal cutoff for low intake');
+  assert(highIntake.includes('None today'), 'Expected high intake to eliminate the caffeine window');
+});
+
+test('dismissing the intro is remembered', () => {
+  const { context, document } = createHarness();
+  context.closeIntro(false);
+  document.getElementById('intro-shell').classList.remove('hidden');
+  context.maybeShowIntro();
+  assert(document.getElementById('intro-shell').classList.contains('hidden'), 'Dismissed intro should stay hidden');
 });
