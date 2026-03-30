@@ -362,15 +362,9 @@
     <div class="intro-panel">
       <div class="intro-kicker">How Circadia Works</div>
       <div class="intro-title">Sleep cycles matter more than just total hours.</div>
-      <div class="intro-copy">
-        Circadia helps you time sleep around natural 90-minute cycles.
-      </div>
       <div class="intro-points">
         <div class="intro-pill">1 cycle ≈ 90 min</div>
         <div class="intro-pill">Best for most adults: 5–6 cycles</div>
-      </div>
-      <div class="intro-note">
-        Circadia includes a small fall-asleep buffer.
       </div>
       <div class="intro-actions">
         <button class="intro-btn primary" onclick="closeIntro(true)">Start Calculating</button>
@@ -394,15 +388,12 @@
     <button class="mode-tab" id="tab-nap" onclick="switchTab('nap')">⚡ Nap</button>
     <button class="mode-tab" id="tab-caff" onclick="switchTab('caff')">☕ Caffeine</button>
   </div>
-  <div class="tab-hint">Tap tabs, swipe left or right, or scroll to switch views</div>
-
   <!-- SLEEP PANEL -->
 
   <div id="panel-sleep">
     <div class="sleep-hero">
       <div class="sleep-kicker">Core Sleep Flow</div>
       <div class="sleep-title" id="sleep-lead">Plan your ideal bedtime from the time you want to wake up.</div>
-      <div class="sleep-copy" id="sleep-support">Pick a target time and Circadia will show the cleanest sleep windows.</div>
       <div class="sleep-stats">
         <div class="sleep-stat">1 cycle ≈ 90 min</div>
         <div class="sleep-stat">Most adults feel best at 5–6 cycles</div>
@@ -426,13 +417,11 @@
           <button class="cycle-btn" onclick="setCycles(6)">6 · 9h</button>
           <button class="cycle-btn" onclick="setCycles(0)">All</button>
         </div>
-        <div class="hint-text" id="cycle-hint">1 cycle ≈ 90 min · optimal = 5–6 cycles</div>
       </div>
       <div class="input-group" style="margin-bottom:12px">
         <label>Fall-asleep buffer — <span id="buffer-val">15</span> min</label>
         <input type="range" id="buffer-slider" min="5" max="45" step="5" value="15"
           class="buffer-slider" oninput="updateBuffer(this.value)">
-        <div class="hint-text" id="buffer-hint">Average time to fall asleep. Adjust if you fall asleep faster or slower.</div>
       </div>
       <button class="calc-btn" onclick="calculate()">Calculate Sleep Times</button>
       <div id="error" style="display:none" class="error-msg"></div>
@@ -441,7 +430,6 @@
 <div id="results" style="display:none" class="results card">
   <div class="section-label">Best Matches</div>
   <div class="results-sub" id="results-sub"></div>
-  <div class="results-highlight" id="results-highlight"></div>
   <div class="sleep-options" id="sleep-options"></div>
 </div>
 
@@ -461,11 +449,9 @@
       <div class="panel-hero cyan-tone">
       <div class="sleep-kicker">Reset Fast</div>
       <div class="sleep-title">Use naps for recovery without wrecking tonight's sleep.</div>
-      <div class="sleep-copy">Choose the nap style you want, then get a clean wake-up time.</div>
     </div>
     <div class="card nap-card">
       <div class="section-label cyan">Configure Your Nap</div>
-      <div class="panel-microcopy">Short naps boost alertness. Longer naps help recovery.</div>
       <div class="input-group">
         <label>I want to start napping at</label>
         <input type="time" class="time-input" id="napInput">
@@ -478,7 +464,6 @@
       <button class="nap-btn active" onclick="setNap(90,'full',this)">Full Cycle<br><span style="opacity:.5">90 min</span></button>
       <button class="nap-btn" onclick="setNap(0,'custom',this)">Custom<br><span style="opacity:.5">set mins</span></button>
         </div>
-        <div class="hint-text" id="nap-hint">Full cycle: light to deep to REM.</div>
       </div>
       <div id="custom-nap-group" style="display:none" class="input-group">
         <label>Duration (minutes)</label>
@@ -499,11 +484,9 @@
     <div class="panel-hero caff-tone">
       <div class="sleep-kicker">Protect Tonight</div>
       <div class="sleep-title">Find the last caffeine window that still respects your bedtime.</div>
-      <div class="sleep-copy">See when to stop caffeine so sleep stays protected later tonight.</div>
     </div>
     <div class="card caff-card">
       <div class="section-label caff">☕ Caffeine Cutoff</div>
-      <div class="panel-microcopy">A simple stop time based on sleep, sensitivity, and intake.</div>
       <div class="input-group">
         <label>My wake-up time</label>
         <input type="time" class="time-input" id="caffWakeInput">
@@ -519,7 +502,6 @@
           <button class="caff-sens-btn active" onclick="setCaffSens('medium',this)">Medium</button>
           <button class="caff-sens-btn" onclick="setCaffSens('high',this)">High</button>
         </div>
-        <div class="hint-text" id="caff-sens-hint">Medium: caffeine takes ~10h to clear sufficiently.</div>
       </div>
       <div class="input-group">
         <label>Caffeine today</label>
@@ -535,7 +517,7 @@
             oninput="updateCaffTotal()">
           <span style="font-size:8px;color:var(--dim);letter-spacing:0.15em;white-space:nowrap">mg</span>
         </div>
-        <div class="hint-text" id="caff-total-hint">Total: 80mg</div>
+        <div class="hint-text" id="caff-total-hint">80mg selected</div>
       </div>
       <button class="calc-btn caff-calc" onclick="calculateCaffeine()">Calculate Cutoff Time</button>
     </div>
@@ -636,9 +618,6 @@
     document.getElementById('sleep-lead').textContent = m==='wakeup'
       ? 'Plan your ideal bedtime from the time you want to wake up.'
       : 'Plan your best wake-up windows from the time you expect to sleep.';
-    document.getElementById('sleep-support').textContent = m==='wakeup'
-      ? 'Pick a target time and Circadia will show the cleanest sleep windows.'
-      : 'Enter your bedtime and Circadia will show cleaner wake-up windows.';
     document.getElementById('results').style.display = 'none';
     document.getElementById('info-strip').style.display = 'none';
   }
@@ -653,7 +632,6 @@
     napMins = mins; napType = type;
     document.querySelectorAll('.nap-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('nap-hint').textContent = napHints[type];
     document.getElementById('custom-nap-group').style.display = type==='custom'?'flex':'none';
     document.getElementById('nap-results').style.display = 'none';
     document.getElementById('nap-error').style.display = 'none';
@@ -718,9 +696,6 @@
     document.getElementById('results-sub').textContent = mode==='wakeup'
       ? `To wake at ${formatTime(anchor)}, sleep at:`
       : `Sleeping at ${formatTime(anchor)}, wake at:`;
-    document.getElementById('results-highlight').textContent = mode==='wakeup'
-      ? `The highlighted option is the strongest balance for most people.`
-      : `The highlighted option is the cleanest wake-up point from this bedtime.`;
     document.getElementById('info-target').textContent = formatTime(anchor);
     document.getElementById('info-cycles').textContent = selectedCycles===0 ? 'All cycles' : `${selectedCycles} cycles`;
     document.getElementById('info-buffer').textContent = `${BUFFER} min`;
@@ -916,7 +891,6 @@
     caffSens = s;
     document.querySelectorAll('.caff-sens-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('caff-sens-hint').textContent = SENS_HINTS[s];
   }
 
   function toggleDrink(btn) {
@@ -930,7 +904,7 @@
     btns.forEach(b => { if (b.classList.contains('active')) total += parseInt(b.dataset.mg); });
     const custom = parseInt(document.getElementById('custom-mg-input').value) || 0;
     total += custom;
-    document.getElementById('caff-total-hint').textContent = `Total: ${total}mg`;
+    document.getElementById('caff-total-hint').textContent = `${total}mg selected`;
   }
 
   function calculateCaffeine() {
