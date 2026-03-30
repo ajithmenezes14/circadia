@@ -275,7 +275,7 @@
   .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px); background:rgba(10,12,20,0.96); border:1px solid rgba(110,201,138,0.3); color:var(--green); padding:10px 18px; border-radius:2px; font-size:9px; letter-spacing:0.22em; text-transform:uppercase; z-index:100; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-  /* ── CAFFEINE TAB ── */
+  /* -- CAFFEINE TAB -- */
   .card.caff-card::before { background:linear-gradient(90deg,transparent,rgba(180,130,60,0.5),transparent); }
   .section-label.caff { color:var(--caff); }
   .section-label.caff::after { background:linear-gradient(90deg,rgba(180,130,60,0.5),transparent); }
@@ -354,7 +354,7 @@
     <button class="mode-tab" id="tab-caff" onclick="switchTab('caff')">☕ Caffeine</button>
   </div>
 
-  <!-- ═══ SLEEP PANEL ═══ -->
+  <!-- SLEEP PANEL -->
 
   <div id="panel-sleep">
     <div class="card">
@@ -416,7 +416,7 @@
 
   </div>
 
-  <!-- ═══ NAP PANEL ═══ -->
+  <!-- NAP PANEL -->
 
   <div id="panel-nap" style="display:none">
     <div class="card nap-card">
@@ -451,7 +451,7 @@
 ```
 
   </div>
-  <!-- ═══ CAFFEINE PANEL ═══ -->
+  <!-- CAFFEINE PANEL -->
   <div id="panel-caff" style="display:none">
     <div class="card caff-card">
       <div class="section-label caff">☕ Caffeine Cutoff</div>
@@ -497,11 +497,11 @@
     </div>
   </div>
 
-</div><!-- /container -->
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── STATE ──
+  // -- STATE --
   let mode = 'wakeup', selectedCycles = 5, napMins = 90, napType = 'full';
   let selectedAlarmTime = null, alarmTimeout = null, alarmActive = false;
   let napAlarmTime = null, napAlarmTimeout = null, napAlarmActive = false;
@@ -527,7 +527,7 @@
     custom:  'Custom duration. Avoid 45–75 min — risk of waking mid-deep-sleep.'
   };
 
-  // ── TABS ──
+  // -- TABS --
   const ALL_TABS = ['sleep','nap','caff'];
   const TAB_ACTIVE_CLASS = { sleep:'active', nap:'nap-active', caff:'caff-active' };
 
@@ -539,7 +539,7 @@
     if (typeof trackTab === 'function') trackTab(tab);
   }
 
-  // ── SLEEP MODE ──
+  // -- SLEEP MODE --
   function setMode(m) {
     mode = m;
     document.getElementById('btn-wakeup').classList.toggle('active', m==='wakeup');
@@ -556,7 +556,7 @@
     document.querySelectorAll('.cycle-btn').forEach((b,i)=>b.classList.toggle('active',[4,5,6,0][i]===n));
   }
 
-  // ── NAP MODE ──
+  // -- NAP MODE --
   function setNap(mins, type, btn) {
     napMins = mins; napType = type;
     document.querySelectorAll('.nap-btn').forEach(b=>b.classList.remove('active'));
@@ -567,7 +567,7 @@
     document.getElementById('nap-error').style.display = 'none';
   }
 
-  // ── MAIN CALCULATE ──
+  // -- MAIN CALCULATE --
   function calculate() {
     document.getElementById('results').style.display = 'none';
     document.getElementById('info-strip').style.display = 'none';
@@ -666,7 +666,7 @@
     document.getElementById('alarm-panel').style.display = 'block';
   }
 
-  // ── NAP CALCULATE ──
+  // -- NAP CALCULATE --
   function calculateNap() {
     document.getElementById('nap-error').style.display = 'none';
     const val = document.getElementById('napInput').value;
@@ -722,7 +722,7 @@
     if (typeof trackCalc === 'function') trackCalc('nap');
   }
 
-  // ── BREAKDOWN ──
+  // -- BREAKDOWN --
   function toggleBreakdown(btn, cycles) {
     const panel = btn.closest('.sleep-option').querySelector('.breakdown-panel');
     const open = panel.classList.toggle('visible');
@@ -781,7 +781,7 @@
     `;
   }
 
-  // ── ALARM + COPY TIME ──
+  // -- ALARM + COPY TIME --
   function copyAlarmTime() {
     if (!selectedAlarmTime) return;
     navigator.clipboard.writeText(selectedAlarmTime).then(() => {
@@ -837,7 +837,7 @@
     resetAlarmToggle();
   }
 
-  // ── NAP ALARM ──
+  // -- NAP ALARM --
   function toggleNapAlarm(btn, timeStr) {
     if (napAlarmActive) {
       napAlarmActive = false;
@@ -888,7 +888,7 @@
     });
   }
 
-  // ── TOAST ──
+  // -- TOAST --
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -896,7 +896,7 @@
     setTimeout(()=>t.classList.remove('show'), 3200);
   }
 
-  // ── TIME FORMAT ──
+  // -- TIME FORMAT --
   function setTimeFmt(fmt) {
     timeFmt = fmt;
     document.getElementById('fmt-12').classList.toggle('active', fmt==='12');
@@ -916,13 +916,13 @@
     return `${h12}:${m.toString().padStart(2,'0')} ${ap}`;
   }
 
-  // ── BUFFER SLIDER ──
+  // -- BUFFER SLIDER --
   function updateBuffer(val) {
     BUFFER = parseInt(val);
     document.getElementById('buffer-val').textContent = val;
   }
 
-  // ── UTILS ──
+  // -- UTILS --
   function fmtDur(mins) {
     const h=Math.floor(mins/60), m=mins%60;
     return m===0?`${h}h`:`${h}h ${m}m`;
@@ -938,9 +938,9 @@
     const e=document.getElementById(id); e.textContent=msg; e.style.display='block';
   }
 
-  // ══════════════════════════════════════════
+  // ==========================================
   // CAFFEINE CUTOFF CALCULATOR
-  // ══════════════════════════════════════════
+  // ==========================================
   let caffSens = 'medium'; // low=8h, medium=10h, high=12h to clear
   let selectedDrinks = new Set([0]); // indices of active drink buttons
 
@@ -1050,7 +1050,7 @@
     if (typeof trackCalc === 'function') trackCalc('caffeine');
   }
 
-  // ── SET DEFAULTS TO CURRENT TIME ──
+  // -- SET DEFAULTS TO CURRENT TIME --
   (function() {
     const now = new Date();
     const hh = now.getHours().toString().padStart(2,'0');
