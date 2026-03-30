@@ -363,15 +363,14 @@
       <div class="intro-kicker">How Circadia Works</div>
       <div class="intro-title">Sleep cycles matter more than just total hours.</div>
       <div class="intro-copy">
-        Circadia lines up bedtime and wake-up time with the natural 90-minute rhythm of sleep so you are less likely to wake up in the middle of deep sleep.
+        Circadia helps you time sleep around natural 90-minute cycles.
       </div>
       <div class="intro-points">
         <div class="intro-pill">1 cycle ≈ 90 min</div>
         <div class="intro-pill">Best for most adults: 5–6 cycles</div>
-        <div class="intro-pill">Buffer included before sleep starts</div>
       </div>
       <div class="intro-note">
-        Most adults feel best around 7.5 to 9 hours. Circadia adds a small fall-asleep buffer so the timing feels realistic instead of idealized.
+        Circadia includes a small fall-asleep buffer.
       </div>
       <div class="intro-actions">
         <button class="intro-btn primary" onclick="closeIntro(true)">Start Calculating</button>
@@ -403,7 +402,7 @@
     <div class="sleep-hero">
       <div class="sleep-kicker">Core Sleep Flow</div>
       <div class="sleep-title" id="sleep-lead">Plan your ideal bedtime from the time you want to wake up.</div>
-      <div class="sleep-copy" id="sleep-support">Pick a wake-up time, choose how many cycles you want, and Circadia will show the sleep windows most likely to leave you feeling clear instead of groggy.</div>
+      <div class="sleep-copy" id="sleep-support">Pick a target time and Circadia will show the cleanest sleep windows.</div>
       <div class="sleep-stats">
         <div class="sleep-stat">1 cycle ≈ 90 min</div>
         <div class="sleep-stat">Most adults feel best at 5–6 cycles</div>
@@ -459,14 +458,14 @@
   <!-- NAP PANEL -->
 
   <div id="panel-nap" style="display:none">
-    <div class="panel-hero cyan-tone">
+      <div class="panel-hero cyan-tone">
       <div class="sleep-kicker">Reset Fast</div>
       <div class="sleep-title">Use naps for recovery without wrecking tonight's sleep.</div>
-      <div class="sleep-copy">Choose a quick alertness boost, a deeper recharge, or a full 90-minute cycle and Circadia will show the cleanest wake-up point.</div>
+      <div class="sleep-copy">Choose the nap style you want, then get a clean wake-up time.</div>
     </div>
     <div class="card nap-card">
       <div class="section-label cyan">Configure Your Nap</div>
-      <div class="panel-microcopy">Short naps sharpen alertness. Longer naps help recovery, but timing matters if you want to avoid waking up foggy.</div>
+      <div class="panel-microcopy">Short naps boost alertness. Longer naps help recovery.</div>
       <div class="input-group">
         <label>I want to start napping at</label>
         <input type="time" class="time-input" id="napInput">
@@ -479,7 +478,7 @@
       <button class="nap-btn active" onclick="setNap(90,'full',this)">Full Cycle<br><span style="opacity:.5">90 min</span></button>
       <button class="nap-btn" onclick="setNap(0,'custom',this)">Custom<br><span style="opacity:.5">set mins</span></button>
         </div>
-        <div class="hint-text" id="nap-hint">Full cycle: light to deep to REM, then wake feeling restored.</div>
+        <div class="hint-text" id="nap-hint">Full cycle: light to deep to REM.</div>
       </div>
       <div id="custom-nap-group" style="display:none" class="input-group">
         <label>Duration (minutes)</label>
@@ -500,11 +499,11 @@
     <div class="panel-hero caff-tone">
       <div class="sleep-kicker">Protect Tonight</div>
       <div class="sleep-title">Find the last caffeine window that still respects your bedtime.</div>
-      <div class="sleep-copy">Circadia uses your wake time, bedtime, and sensitivity to suggest a cutoff that protects sleep quality instead of just keeping you awake longer.</div>
+      <div class="sleep-copy">See when to stop caffeine so sleep stays protected later tonight.</div>
     </div>
     <div class="card caff-card">
       <div class="section-label caff">☕ Caffeine Cutoff</div>
-      <div class="panel-microcopy">This gives you a practical stop time so you keep the benefit earlier in the day without paying for it at night.</div>
+      <div class="panel-microcopy">A simple stop time based on sleep, sensitivity, and intake.</div>
       <div class="input-group">
         <label>My wake-up time</label>
         <input type="time" class="time-input" id="caffWakeInput">
@@ -638,8 +637,8 @@
       ? 'Plan your ideal bedtime from the time you want to wake up.'
       : 'Plan your best wake-up windows from the time you expect to sleep.';
     document.getElementById('sleep-support').textContent = m==='wakeup'
-      ? 'Pick a wake-up time, choose how many cycles you want, and Circadia will show the sleep windows most likely to leave you feeling clear instead of groggy.'
-      : 'Enter the time you expect to fall asleep and Circadia will highlight wake-up windows that line up with the end of your natural cycles.';
+      ? 'Pick a target time and Circadia will show the cleanest sleep windows.'
+      : 'Enter your bedtime and Circadia will show cleaner wake-up windows.';
     document.getElementById('results').style.display = 'none';
     document.getElementById('info-strip').style.display = 'none';
   }
@@ -720,8 +719,8 @@
       ? `To wake at ${formatTime(anchor)}, sleep at:`
       : `Sleeping at ${formatTime(anchor)}, wake at:`;
     document.getElementById('results-highlight').textContent = mode==='wakeup'
-      ? `The highlighted option is the best balance for most people: enough full cycles to recover, without stretching too far past your target wake time.`
-      : `The highlighted option gives you the most practical wake-up point based on your chosen bedtime and preferred number of cycles.`;
+      ? `The highlighted option is the strongest balance for most people.`
+      : `The highlighted option is the cleanest wake-up point from this bedtime.`;
     document.getElementById('info-target').textContent = formatTime(anchor);
     document.getElementById('info-cycles').textContent = selectedCycles===0 ? 'All cycles' : `${selectedCycles} cycles`;
     document.getElementById('info-buffer').textContent = `${BUFFER} min`;
@@ -775,7 +774,7 @@
           <div class="nap-tip">${info.benefit}</div>
         </div>
       </div>
-      <div class="result-summary">Best for: <strong style="color:var(--moon)">${info.benefit}</strong>. This wake-up point is chosen to fit the nap style you picked instead of dropping you into the heaviest part of sleep.</div>
+      <div class="result-summary">Best for: <strong style="color:var(--moon)">${info.benefit}</strong>.</div>
       ${warnHtml}
       ${bdHtml}
     `;
@@ -1004,8 +1003,8 @@
       </div>
       <div class="result-summary caff">
         ${noCaffeine
-          ? '⚠ Your sleep window is too short for any caffeine today. Try going to bed earlier or waking up later.'
-          : `You have a <strong style="color:var(--moon)">${safeHours.toFixed(1)}h caffeine window</strong> today. After ${formatTime(cutoff)}, switch to water, herbal tea, or decaf. With ${totalMg}mg today, about ${Math.round(remainMg)}mg (${remainPct}%) may still be in your system at bedtime.`}
+          ? '⚠ Your sleep window is too short for caffeine today.'
+          : `You have a <strong style="color:var(--moon)">${safeHours.toFixed(1)}h caffeine window</strong>. With ${totalMg}mg today, about ${Math.round(remainMg)}mg (${remainPct}%) may still be active at bedtime.`}
       </div>
       <div class="caff-tips" style="margin-top:14px">${tipsHtml}</div>
     `;
