@@ -205,14 +205,13 @@ test('changing time format refreshes sleep and nap results', () => {
   assert(document.getElementById('nap-output').innerHTML.includes('14:30'), 'Nap result should be reformatted to 24h');
 });
 
-test('changing time format does not refresh caffeine results yet', () => {
+test('changing time format refreshes caffeine results', () => {
   const { context, document } = createHarness();
   document.getElementById('caffWakeInput').value = '07:00';
   document.getElementById('caffBedInput').value = '23:00';
   context.calculateCaffeine();
-  const before = document.getElementById('caff-output').innerHTML;
   context.setTimeFmt('24');
   const after = document.getElementById('caff-output').innerHTML;
-  assert(before === after, 'Caffeine result unexpectedly changed; the stale-format bug may already be fixed');
-  assert(after.includes('11:00 PM'), 'Expected caffeine output to remain in 12h format after switching to 24h');
+  assert(after.includes('23:00'), 'Expected caffeine output to be reformatted to 24h');
+  assert(!after.includes('11:00 PM'), 'Caffeine output should not remain in 12h format after switching to 24h');
 });
