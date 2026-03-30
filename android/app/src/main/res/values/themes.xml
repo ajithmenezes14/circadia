@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools='http://schemas.android.com/tools'>
+    <style name='Theme.Circadia' parent='Theme.MaterialComponents.DayNight.NoActionBar'>
+        <item name='android:statusBarColor'>@color/night</item>
+        <item name='android:navigationBarColor'>@color/night</item>
+        <item name='colorPrimary'>@color/night</item>
+        <item name='colorOnPrimary'>@color/star</item>
+        <item name='colorSurface'>@color/night</item>
+        <item name='android:windowBackground'>@color/night</item>
+        <item name='android:forceDarkAllowed' tools:targetApi='q'>false</item>
+    </style>
+</resources>
