@@ -28,7 +28,27 @@
     --caff: #c8a45a;
   }
 
-- { margin:0; padding:0; box-sizing:border-box; }
+- { margin:0; padding:0; box-sizing:border-box; -webkit-text-fill-color: unset; }
+
+input, button, select, textarea {
+-webkit-text-fill-color: unset;
+color: inherit;
+}
+/* Safari iOS blue text override fix */
+button { -webkit-text-fill-color: inherit !important; color: inherit !important; }
+input[type=“number”], input[type=“time”], input[type=“range”] { -webkit-text-fill-color: inherit; }
+.brand { -webkit-text-fill-color: var(–star) !important; }
+.tagline { -webkit-text-fill-color: var(–dim) !important; }
+.section-label { -webkit-text-fill-color: var(–gold) !important; }
+.section-label.cyan { -webkit-text-fill-color: var(–cyan) !important; }
+.section-label.caff { -webkit-text-fill-color: var(–caff) !important; }
+.option-time { -webkit-text-fill-color: var(–star) !important; }
+.sleep-option.recommended .option-time { -webkit-text-fill-color: var(–gold) !important; }
+.results-sub, .hint-text, .option-meta, .duration-text, .cycles-hint { -webkit-text-fill-color: var(–dim) !important; }
+.rec-tag { -webkit-text-fill-color: var(–gold) !important; }
+.alarm-time-display { -webkit-text-fill-color: var(–green) !important; }
+.nap-wake-time { -webkit-text-fill-color: var(–cyan) !important; }
+.caff-cutoff-time { -webkit-text-fill-color: var(–caff) !important; }
 
 html, body {
 background: #0a0c14 !important;
@@ -82,9 +102,10 @@ pointer-events: none; z-index: 0;
 
 /* TABS */
 .mode-tabs { display:flex; gap:4px; margin-bottom:24px; background:rgba(255,255,255,0.02); border:1px solid rgba(232,224,208,0.07); border-radius:3px; padding:4px; }
-.mode-tab { flex:1; padding:10px 6px; font-family:‘DM Mono’,monospace; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; border:none; background:transparent; color:var(–dim); cursor:pointer; transition:all 0.25s; border-radius:2px; }
-.mode-tab.active { background:rgba(201,169,110,0.1); color:var(–gold); border:1px solid rgba(201,169,110,0.2); }
-.mode-tab.nap-active { background:rgba(93,191,191,0.1); color:var(–cyan); border:1px solid rgba(93,191,191,0.2); }
+.mode-tab { flex:1; padding:10px 6px; font-family:‘DM Mono’,monospace; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; border:none; background:transparent; color:var(–dim) !important; -webkit-text-fill-color:var(–dim) !important; cursor:pointer; transition:all 0.25s; border-radius:2px; }
+.mode-tab.active { background:rgba(201,169,110,0.1); color:var(–gold) !important; -webkit-text-fill-color:var(–gold) !important; border:1px solid rgba(201,169,110,0.2); }
+.mode-tab.nap-active { background:rgba(93,191,191,0.1); color:var(–cyan) !important; -webkit-text-fill-color:var(–cyan) !important; border:1px solid rgba(93,191,191,0.2); }
+.mode-tab.caff-active { background:rgba(180,130,60,0.1); color:var(–caff) !important; -webkit-text-fill-color:var(–caff) !important; border:1px solid rgba(180,130,60,0.2); }
 
 /* CARD */
 .card { background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%); border:1px solid rgba(232,224,208,0.08); border-radius:2px; padding:28px 24px; margin-bottom:18px; animation:fadeUp 0.8s ease 0.2s both; position:relative; overflow:hidden; }
@@ -99,7 +120,7 @@ pointer-events: none; z-index: 0;
 .input-group { display:flex; flex-direction:column; gap:5px; margin-bottom:18px; }
 .input-group label { font-size:9px; letter-spacing:0.25em; color:var(–dim); text-transform:uppercase; }
 
-.time-input { background:rgba(255,255,255,0.03); border:1px solid rgba(232,224,208,0.1); border-radius:2px; padding:11px 14px; font-family:‘Cormorant Garamond’,serif; font-size:28px; font-weight:300; color:var(–star); width:100%; outline:none; transition:border-color 0.3s, background 0.3s; -webkit-appearance:none; color-scheme:dark; }
+.time-input { background:rgba(255,255,255,0.03); border:1px solid rgba(232,224,208,0.1); border-radius:2px; padding:11px 14px; font-family:‘Cormorant Garamond’,serif; font-size:28px; font-weight:300; color:var(–star) !important; -webkit-text-fill-color: var(–star) !important; width:100%; outline:none; transition:border-color 0.3s, background 0.3s; -webkit-appearance:none; color-scheme:dark; }
 .time-input:focus { border-color:var(–gold-dim); background:rgba(201,169,110,0.04); }
 
 .toggle-row { display:flex; gap:7px; margin-bottom:18px; }
