@@ -11,6 +11,25 @@
 <meta name="apple-mobile-web-app-title" content="Circadia">
 <title>Circadia — Sleep Cycle Calculator</title>
 
+<!-- Google Analytics — replace G-XXXXXXXXXX with your Measurement ID -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+  // Track tab switches
+  function trackTab(tab) {
+    gtag('event', 'tab_switch', { tab_name: tab });
+  }
+  // Track calculations
+  function trackCalc(type) {
+    gtag('event', 'calculate', { calc_type: type });
+  }
+</script>
+
 <style>
   html,body,*{-webkit-text-fill-color:unset!important}
   body{background:#0a0c14!important;color:#e8e0d0!important}
@@ -517,6 +536,7 @@
       document.getElementById('tab-'+t).className = 'mode-tab' + (t===tab ? ' '+TAB_ACTIVE_CLASS[t] : '');
       document.getElementById('panel-'+t).style.display = t===tab ? 'block' : 'none';
     });
+    if (typeof trackTab === 'function') trackTab(tab);
   }
 
   // ── SLEEP MODE ──
@@ -610,6 +630,7 @@
 
     document.getElementById('results').style.display = 'block';
     document.getElementById('info-strip').style.display = 'flex';
+    if (typeof trackCalc === 'function') trackCalc('sleep');
 
     // Build alarm panel
     const selectRow = document.getElementById('alarm-select-row');
@@ -698,6 +719,7 @@
     `;
 
     document.getElementById('nap-results').style.display = 'block';
+    if (typeof trackCalc === 'function') trackCalc('nap');
   }
 
   // ── BREAKDOWN ──
@@ -1025,6 +1047,7 @@
     `;
 
     document.getElementById('caff-results').style.display = 'block';
+    if (typeof trackCalc === 'function') trackCalc('caffeine');
   }
 
   // ── SET DEFAULTS TO CURRENT TIME ──
