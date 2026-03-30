@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+
+<html lang="en" style="background:#0a0c14;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta name="theme-color" content="#0a0c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Circadia">
+<title>Circadia — Sleep Cycle Calculator</title>
+
+<!-- Google Analytics — replace G-XXXXXXXXXX with your Measurement ID -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+  // Track tab switches
+  function trackTab(tab) {
+    gtag('event', 'tab_switch', { tab_name: tab });
+  }
+  // Track calculations
+  function trackCalc(type) {
+    gtag('event', 'calculate', { calc_type: type });
+  }
+</script>
+
+<style>
+  html,body,*{-webkit-text-fill-color:unset!important}
+  body{background:#0a0c14!important;color:#e8e0d0!important}
+  button{color:inherit!important;-webkit-text-fill-color:inherit!important}
+</style>
+
+<style>
+  :root {
+    --night: #0a0c14;
+    --star: #f7f1e6;
+    --moon: #d8d0bf;
+    --dim: #b7ae9f;
+    --gold: #c9a96e;
+    --gold-dim: #7a6442;
+    --cyan: #5dbfbf;
+    --cyan-dim: #2a5f5f;
+    --red: #c96e6e;
+    --green: #6ec98a;
+    --purple: #9b7ec8;
+    --purple-dim: #4a3a6a;
+    --caff: #c8a45a;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-text-fill-color: unset; }
+
+  input, button, select, textarea {
+    -webkit-text-fill-color: unset;
+    color: inherit;
+  }
+  /* Safari iOS blue text override fix */
+  button { -webkit-text-fill-color: inherit !important; color: inherit !important; }
+  input[type="number"], input[type="time"], input[type="range"] { -webkit-text-fill-color: inherit; }
+  .brand { -webkit-text-fill-color: var(--star) !important; }
+  .tagline { -webkit-text-fill-color: var(--moon) !important; }
+  .section-label { -webkit-text-fill-color: var(--gold) !important; }
+  .section-label.cyan { -webkit-text-fill-color: var(--cyan) !important; }
+  .section-label.caff { -webkit-text-fill-color: var(--caff) !important; }
+  .option-time { -webkit-text-fill-color: var(--star) !important; }
+  .sleep-option.recommended .option-time { -webkit-text-fill-color: var(--gold) !important; }
+  .results-sub, .hint-text, .option-meta, .duration-text, .cycles-hint { -webkit-text-fill-color: var(--moon) !important; }
+  .rec-tag { -webkit-text-fill-color: var(--gold) !important; }
+  .nap-wake-time { -webkit-text-fill-color: var(--cyan) !important; }
+  .caff-cutoff-time { -webkit-text-fill-color: var(--caff) !important; }
+
+
+  html, body {
+    background: #0a0c14 !important;
+    background-color: #0a0c14 !important;
+    color: #e8e0d0 !important;
+    
+    -webkit-tap-highlight-color: transparent;
+    min-height: 100%;
+  }
+
+  body {
+    background: var(--night) !important;
+    color: var(--star);
+    font-family: 'Courier New',Courier,monospace;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 80px;
+    padding-bottom: max(80px, env(safe-area-inset-bottom));
+    overflow-x: hidden; position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 20%, rgba(232,224,208,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 42% 8%, rgba(232,224,208,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 70% 15%, rgba(201,169,110,0.35) 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 30%, rgba(232,224,208,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 60%, rgba(232,224,208,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 75%, rgba(232,224,208,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 90%, rgba(201,169,110,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 28% 85%, rgba(232,224,208,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 78% 55%, rgba(232,224,208,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 45%, rgba(232,224,208,0.2) 0%, transparent 100%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; top: -120px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(201,169,110,0.06) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .container { width: 100%; max-width: 540px; position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 32px; animation: fadeDown 0.8s ease both; }
+  .moon-icon { font-size: 32px; display: block; margin-bottom: 12px; animation: moonFloat 6s ease-in-out infinite; opacity:0.92; }
+  @keyframes moonFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  .brand { font-family:Georgia,'Times New Roman',serif; font-size:40px; font-weight:300; letter-spacing:0.2em; color:var(--star); display:block; line-height:1; }
+  .tagline { font-size:10px; letter-spacing:0.32em; color:var(--moon); text-transform:uppercase; margin-top:7px; display:block; opacity:0.82; }
+
+  .sleep-hero, .panel-hero { margin-bottom:20px; padding:20px 20px 18px; border:1px solid rgba(232,224,208,0.08); border-radius:6px; background:linear-gradient(140deg,rgba(201,169,110,0.08),rgba(255,255,255,0.02)); box-shadow:0 14px 30px rgba(0,0,0,0.14); }
+  .sleep-kicker { font-size:10px; letter-spacing:0.28em; color:var(--gold); text-transform:uppercase; margin-bottom:12px; opacity:0.95; }
+  .sleep-title { font-family:Georgia,'Times New Roman',serif; font-size:30px; line-height:1.12; color:var(--star); margin-bottom:10px; }
+  .sleep-copy { font-size:13px; line-height:1.82; color:var(--moon); margin-bottom:15px; max-width:34rem; }
+  .sleep-stats { display:flex; gap:8px; flex-wrap:wrap; }
+  .sleep-stat { padding:7px 10px; border:1px solid rgba(232,224,208,0.1); border-radius:999px; background:rgba(255,255,255,0.02); font-size:10px; letter-spacing:0.14em; color:var(--moon); text-transform:uppercase; opacity:0.92; }
+  .panel-hero.cyan-tone { background:linear-gradient(140deg,rgba(93,191,191,0.08),rgba(255,255,255,0.02)); }
+  .panel-hero.caff-tone { background:linear-gradient(140deg,rgba(180,130,60,0.08),rgba(255,255,255,0.02)); }
+  .panel-hero.cyan-tone .sleep-kicker { color:var(--cyan); }
+  .panel-hero.caff-tone .sleep-kicker { color:var(--caff); }
+  .panel-hero .sleep-title { font-size:25px; }
+  .panel-hero .sleep-copy { margin-bottom:0; }
+
+  /* TABS */
+  .mode-tabs { display:flex; gap:4px; margin-bottom:22px; background:rgba(255,255,255,0.02); border:1px solid rgba(232,224,208,0.07); border-radius:6px; padding:4px; }
+  .mode-tab { flex:1; padding:11px 8px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; border:none; background:transparent; color:var(--moon) !important; -webkit-text-fill-color:var(--moon) !important; cursor:pointer; transition:all 0.25s; border-radius:4px; }
+  .mode-tab.active { background:rgba(201,169,110,0.1); color:var(--gold) !important; -webkit-text-fill-color:var(--gold) !important; border:1px solid rgba(201,169,110,0.2); }
+  .mode-tab.nap-active { background:rgba(93,191,191,0.1); color:var(--cyan) !important; -webkit-text-fill-color:var(--cyan) !important; border:1px solid rgba(93,191,191,0.2); }
+  .mode-tab.caff-active { background:rgba(180,130,60,0.1); color:var(--caff) !important; -webkit-text-fill-color:var(--caff) !important; border:1px solid rgba(180,130,60,0.2); }
+  .tab-hint { text-align:center; margin:-10px 0 20px; font-size:10px; color:var(--moon); letter-spacing:0.09em; opacity:0.68; }
+
+  /* CARD */
+  .card { background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%); border:1px solid rgba(232,224,208,0.08); border-radius:6px; padding:28px 24px; margin-bottom:18px; animation:fadeUp 0.8s ease 0.2s both; position:relative; overflow:hidden; box-shadow:0 16px 36px rgba(0,0,0,0.16); }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),transparent); }
+  .card.nap-card::before { background:linear-gradient(90deg,transparent,var(--cyan-dim),transparent); }
+
+  .section-label { font-size:9px; letter-spacing:0.34em; color:var(--gold); text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+  .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--gold-dim),transparent); }
+  .section-label.cyan { color:var(--cyan); }
+  .section-label.cyan::after { background:linear-gradient(90deg,var(--cyan-dim),transparent); }
+
+  .input-group { display:flex; flex-direction:column; gap:6px; margin-bottom:20px; }
+  .input-group label { font-size:10px; letter-spacing:0.18em; color:var(--moon); text-transform:uppercase; }
+
+  .time-input { background:rgba(255,255,255,0.03); border:1px solid rgba(232,224,208,0.1); border-radius:4px; padding:13px 15px; font-family:Georgia,'Times New Roman',serif; font-size:28px; font-weight:300; color:var(--star) !important; -webkit-text-fill-color: var(--star) !important; width:100%; outline:none; transition:border-color 0.3s, background 0.3s, box-shadow 0.3s; -webkit-appearance:none;  }
+  .time-input:focus { border-color:var(--gold-dim); background:rgba(201,169,110,0.04); box-shadow:0 0 0 3px rgba(201,169,110,0.08); }
+
+  .toggle-row { display:flex; gap:8px; margin-bottom:20px; }
+  .toggle-btn { flex:1; padding:10px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; border:1px solid rgba(232,224,208,0.16); background:transparent; color:var(--moon); cursor:pointer; transition:all 0.2s; border-radius:4px; }
+  .toggle-btn.active { border-color:var(--cyan-dim); background:rgba(93,191,191,0.08); color:var(--cyan); }
+
+  .cycles-row, .nap-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .cycle-btn { padding:8px 12px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:0.12em; border:1px solid rgba(232,224,208,0.16); background:transparent; color:var(--moon); cursor:pointer; transition:all 0.2s; border-radius:4px; }
+  .cycle-btn.active { border-color:var(--gold-dim); background:rgba(201,169,110,0.08); color:var(--gold); }
+
+  .nap-btn { flex:1; min-width:70px; padding:11px 7px; font-family:'Courier New',Courier,monospace; font-size:9px; letter-spacing:0.08em; border:1px solid rgba(232,224,208,0.16); background:transparent; color:var(--moon); cursor:pointer; transition:all 0.2s; border-radius:4px; text-align:center; line-height:1.6; }
+  .nap-btn.active { border-color:var(--cyan-dim); background:rgba(93,191,191,0.08); color:var(--cyan); }
+
+  .hint-text { font-size:10px; color:var(--moon); letter-spacing:0.04em; margin-top:4px; line-height:1.65; opacity:0.86; }
+
+  .calc-btn { width:100%; padding:14px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:0.28em; text-transform:uppercase; border:1px solid var(--gold-dim); background:rgba(201,169,110,0.08); color:var(--gold); cursor:pointer; transition:all 0.3s; border-radius:4px; position:relative; overflow:hidden; margin-top:6px; }
+  .calc-btn.nap-calc { border-color:var(--cyan-dim); background:rgba(93,191,191,0.08); color:var(--cyan); }
+  .calc-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(201,169,110,0.12),transparent); transform:translateX(-100%); transition:transform 0.5s; }
+  .calc-btn.nap-calc::before { background:linear-gradient(90deg,transparent,rgba(93,191,191,0.12),transparent); }
+  .calc-btn:hover::before { transform:translateX(100%); }
+  .calc-btn:hover { border-color:var(--gold); background:rgba(201,169,110,0.14); }
+  .calc-btn.nap-calc:hover { border-color:var(--cyan); background:rgba(93,191,191,0.14); }
+
+  /* SLEEP OPTIONS */
+  .sleep-options { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .results-sub { font-size:9px; color:var(--dim); letter-spacing:0.16em; line-height:1.7; }
+  .results-highlight { margin-top:12px; padding:13px 14px; border-left:2px solid rgba(201,169,110,0.45); background:rgba(201,169,110,0.05); color:var(--moon); font-size:12px; line-height:1.8; border-radius:0 4px 4px 0; }
+
+  .sleep-option { border:1px solid rgba(232,224,208,0.07); border-radius:4px; background:rgba(255,255,255,0.02); transition:border-color 0.3s, transform 0.3s; animation:slideIn 0.4s ease both; overflow:hidden; }
+  .sleep-option:hover { transform:translateY(-1px); }
+  .sleep-option:nth-child(1){animation-delay:0.05s}
+  .sleep-option:nth-child(2){animation-delay:0.1s}
+  .sleep-option:nth-child(3){animation-delay:0.15s}
+  .sleep-option:nth-child(4){animation-delay:0.2s}
+  .sleep-option.recommended { border-color:rgba(201,169,110,0.25); background:rgba(201,169,110,0.04); }
+
+  .option-main { display:flex; align-items:center; justify-content:space-between; padding:15px 16px; }
+  .option-left { display:flex; flex-direction:column; gap:3px; }
+  .option-time { font-family:Georgia,'Times New Roman',serif; font-size:26px; font-weight:300; color:var(--star); line-height:1; }
+  .sleep-option.recommended .option-time { color:var(--gold); }
+  .option-meta { font-size:8px; letter-spacing:0.14em; color:var(--dim); text-transform:uppercase; line-height:1.6; }
+  .option-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .cycles-badge { font-size:8px; letter-spacing:0.18em; padding:3px 7px; border-radius:1px; text-transform:uppercase; }
+  .sleep-option.recommended .cycles-badge { background:rgba(201,169,110,0.15); color:var(--gold); border:1px solid rgba(201,169,110,0.2); }
+  .sleep-option:not(.recommended) .cycles-badge { background:rgba(93,191,191,0.08); color:var(--cyan); border:1px solid rgba(93,191,191,0.15); }
+  .duration-text { font-size:8px; color:var(--dim); letter-spacing:0.1em; }
+  .rec-tag { font-size:8px; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; }
+
+  /* ACTION ROW */
+  .action-row { display:flex; gap:7px; padding:0 16px 14px; }
+  .breakdown-btn { flex:1; padding:9px 8px; font-family:'Courier New',Courier,monospace; font-size:8px; letter-spacing:0.16em; text-transform:uppercase; border:1px solid rgba(155,126,200,0.25); background:rgba(155,126,200,0.05); color:var(--purple); cursor:pointer; transition:all 0.2s; border-radius:4px; }
+  .breakdown-btn:hover { border-color:rgba(155,126,200,0.5); background:rgba(155,126,200,0.1); }
+  .breakdown-btn.open { border-color:rgba(155,126,200,0.4); background:rgba(155,126,200,0.08); }
+
+  /* BREAKDOWN PANEL */
+  .breakdown-panel { display:none; padding:0 16px 16px; border-top:1px solid rgba(232,224,208,0.05); }
+  .breakdown-panel.visible { display:block; animation:fadeUp 0.3s ease both; }
+  .bd-title { font-size:8px; letter-spacing:0.3em; color:var(--purple); text-transform:uppercase; margin:14px 0 12px; }
+
+  .stage-bars { display:flex; flex-direction:column; gap:9px; }
+  .stage-row { display:flex; align-items:center; gap:10px; }
+  .stage-label { font-size:8px; letter-spacing:0.12em; color:var(--dim); text-transform:uppercase; width:44px; flex-shrink:0; }
+  .stage-bar-wrap { flex:1; height:5px; background:rgba(255,255,255,0.04); border-radius:1px; overflow:hidden; }
+  .stage-bar { height:100%; border-radius:1px; }
+  .stage-bar.light { background:linear-gradient(90deg,#5dbfbf,#3a9a9a); }
+  .stage-bar.deep  { background:linear-gradient(90deg,#9b7ec8,#6b4ea0); }
+  .stage-bar.rem   { background:linear-gradient(90deg,#c9a96e,#a07840); }
+  .stage-val { font-size:8px; color:var(--moon); width:32px; text-align:right; flex-shrink:0; letter-spacing:0.05em; }
+
+  .stage-legend { display:flex; gap:14px; margin-top:10px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:8px; color:var(--dim); letter-spacing:0.1em; }
+  .legend-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+
+  .cycle-timeline { margin-top:14px; }
+  .tl-label { font-size:8px; letter-spacing:0.25em; color:var(--dim); text-transform:uppercase; margin-bottom:5px; }
+  .tl-track { display:flex; gap:2px; height:12px; }
+  .tl-seg { flex:1; border-radius:1px; }
+  .tl-seg.ls { background:rgba(93,191,191,0.4); }
+  .tl-seg.ds { background:rgba(155,126,200,0.5); }
+  .tl-seg.rs { background:rgba(201,169,110,0.5); }
+  .tl-ends { display:flex; justify-content:space-between; margin-top:4px; font-size:8px; color:var(--dim); letter-spacing:0.1em; }
+
+  .bd-note { margin-top:10px; font-size:8px; color:var(--dim); letter-spacing:0.1em; line-height:1.7; }
+
+  /* NAP RESULT */
+  .nap-result-main { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border:1px solid rgba(93,191,191,0.2); border-radius:4px; background:rgba(93,191,191,0.04); }
+  .nap-wake-time { font-family:Georgia,'Times New Roman',serif; font-size:34px; font-weight:300; color:var(--cyan); }
+  .nap-meta { font-size:8px; color:var(--dim); letter-spacing:0.18em; margin-top:4px; }
+  .nap-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+  .nap-badge { font-size:8px; letter-spacing:0.18em; padding:3px 8px; border-radius:1px; text-transform:uppercase; background:rgba(93,191,191,0.1); color:var(--cyan); border:1px solid rgba(93,191,191,0.2); }
+  .nap-tip { font-size:8px; color:var(--dim); letter-spacing:0.1em; text-align:right; max-width:130px; line-height:1.5; }
+  .warn-strip { margin-top:10px; padding:8px 10px; background:rgba(201,110,110,0.06); border:1px solid rgba(201,110,110,0.15); border-radius:2px; font-size:8px; letter-spacing:0.14em; color:var(--red); line-height:1.5; }
+  .result-summary { margin-top:14px; padding:13px 14px; border:1px solid rgba(232,224,208,0.06); border-left:2px solid rgba(93,191,191,0.45); border-radius:4px; background:rgba(255,255,255,0.02); font-size:11px; line-height:1.8; color:var(--moon); }
+  .result-summary.caff { border-left-color:rgba(180,130,60,0.45); }
+
+  /* INFO STRIP */
+  .info-strip { padding:14px 16px; border:1px solid rgba(232,224,208,0.05); border-radius:4px; background:rgba(255,255,255,0.01); display:flex; gap:0; margin-bottom:18px; animation:fadeUp 0.5s ease 0.3s both; }
+  .info-item { flex:1; padding:0 12px; }
+  .info-item:first-child { padding-left:0; }
+  .info-item:last-child { padding-right:0; }
+  .info-label { font-size:8px; letter-spacing:0.24em; color:var(--dim); text-transform:uppercase; margin-bottom:4px; }
+  .info-value { font-family:Georgia,'Times New Roman',serif; font-size:17px; font-weight:300; color:var(--moon); }
+  .divider { width:1px; background:rgba(232,224,208,0.06); align-self:stretch; }
+
+  .footer-note { text-align:center; font-size:8px; letter-spacing:0.16em; color:var(--dim); margin-top:24px; line-height:2; animation:fadeUp 0.5s ease 0.5s both; }
+  .error-msg { font-size:9px; letter-spacing:0.15em; color:var(--red); text-align:center; padding:9px; border:1px solid rgba(201,110,110,0.2); border-radius:2px; background:rgba(201,110,110,0.05); margin-top:10px; }
+
+  /* TOAST */
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px); background:rgba(10,12,20,0.96); border:1px solid rgba(110,201,138,0.3); color:var(--green); padding:10px 18px; border-radius:2px; font-size:9px; letter-spacing:0.22em; text-transform:uppercase; z-index:100; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* INTRO */
+  .intro-card-shell { margin-bottom:20px; animation:fadeDown 0.45s ease both; }
+  .intro-card-shell.hidden { display:none; }
+  .intro-panel { width:100%; border:1px solid rgba(232,224,208,0.1); border-radius:6px; background:linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); padding:22px 20px; box-shadow:0 14px 36px rgba(0,0,0,0.2); }
+  .intro-kicker { font-size:10px; letter-spacing:0.28em; color:var(--gold); text-transform:uppercase; margin-bottom:10px; }
+  .intro-title { font-family:Georgia,'Times New Roman',serif; font-size:28px; line-height:1.12; color:var(--star); margin-bottom:10px; }
+  .intro-copy { font-size:13px; line-height:1.8; color:var(--moon); margin-bottom:16px; }
+  .intro-points { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+  .intro-pill { padding:7px 10px; border:1px solid rgba(232,224,208,0.08); border-radius:999px; background:rgba(255,255,255,0.02); font-size:10px; letter-spacing:0.12em; color:var(--moon); text-transform:uppercase; }
+  .intro-note { border-left:2px solid rgba(93,191,191,0.5); padding-left:12px; font-size:12px; line-height:1.8; color:var(--moon); margin-bottom:16px; }
+  .intro-actions { display:flex; gap:10px; flex-wrap:wrap; }
+  .intro-btn { flex:1; min-width:160px; padding:12px 14px; border-radius:4px; border:1px solid rgba(232,224,208,0.14); background:transparent; color:var(--star); font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:0.16em; text-transform:uppercase; cursor:pointer; transition:all 0.25s; }
+  .intro-btn.primary { border-color:rgba(201,169,110,0.4); background:rgba(201,169,110,0.12); color:var(--gold); }
+  .intro-btn.secondary { color:var(--moon); }
+  .intro-btn:hover { transform:translateY(-1px); border-color:rgba(232,224,208,0.24); }
+  .panel-microcopy { margin-top:-2px; margin-bottom:18px; font-size:11px; color:var(--moon); line-height:1.8; opacity:0.92; }
+
+  /* -- CAFFEINE TAB -- */
+  .card.caff-card::before { background:linear-gradient(90deg,transparent,rgba(180,130,60,0.5),transparent); }
+  .section-label.caff { color:var(--caff); }
+  .section-label.caff::after { background:linear-gradient(90deg,rgba(180,130,60,0.5),transparent); }
+  .calc-btn.caff-calc { border-color:rgba(180,130,60,0.5); background:rgba(180,130,60,0.08); color:var(--caff); }
+  .calc-btn.caff-calc:hover { border-color:var(--caff); background:rgba(180,130,60,0.14); }
+  .calc-btn.caff-calc::before { background:linear-gradient(90deg,transparent,rgba(180,130,60,0.12),transparent); }
+  .caff-sens-btn { padding:8px 12px; font-family:'Courier New',Courier,monospace; font-size:9px; letter-spacing:0.14em; border:1px solid rgba(232,224,208,0.1); background:transparent; color:var(--dim); cursor:pointer; transition:all 0.2s; border-radius:4px; }
+  .caff-sens-btn.active { border-color:rgba(180,130,60,0.5); background:rgba(180,130,60,0.08); color:var(--caff); }
+  .caff-drinks-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .caff-drink-btn { flex:1; min-width:70px; padding:10px 7px; font-family:'Courier New',Courier,monospace; font-size:8px; letter-spacing:0.08em; border:1px solid rgba(232,224,208,0.1); background:transparent; color:var(--dim); cursor:pointer; transition:all 0.2s; border-radius:4px; text-align:center; line-height:1.6; }
+  .caff-drink-btn span { font-size:7px; opacity:0.5; }
+  .caff-drink-btn.active { border-color:rgba(180,130,60,0.4); background:rgba(180,130,60,0.08); color:var(--caff); }
+
+  .caff-cutoff-main { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border:1px solid rgba(180,130,60,0.2); border-radius:4px; background:rgba(180,130,60,0.04); margin-bottom:14px; }
+  .caff-cutoff-time { font-family:Georgia,'Times New Roman',serif; font-size:36px; font-weight:300; color:var(--caff); }
+  .caff-cutoff-label { font-size:8px; color:var(--dim); letter-spacing:0.18em; margin-top:4px; }
+  .caff-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+  .caff-badge { font-size:8px; letter-spacing:0.15em; padding:3px 8px; border-radius:1px; text-transform:uppercase; background:rgba(180,130,60,0.1); color:var(--caff); border:1px solid rgba(180,130,60,0.2); }
+
+  .caff-timeline { margin-top:4px; }
+  .caff-tl-label { font-size:8px; letter-spacing:0.25em; color:var(--dim); text-transform:uppercase; margin-bottom:8px; }
+  .caff-tl-track { position:relative; height:14px; background:rgba(255,255,255,0.03); border-radius:2px; overflow:hidden; }
+  .caff-tl-fill { position:absolute; left:0; top:0; height:100%; border-radius:2px; background:linear-gradient(90deg,rgba(201,110,110,0.6),rgba(200,148,110,0.5),rgba(110,201,138,0.3)); transition:width 0.8s ease; }
+  .caff-tl-marker { position:absolute; top:0; height:100%; width:2px; background:rgba(232,224,208,0.5); }
+  .caff-tl-marker-label { position:absolute; top:18px; font-size:7px; color:var(--dim); letter-spacing:0.1em; transform:translateX(-50%); white-space:nowrap; }
+  .caff-tl-ends { display:flex; justify-content:space-between; margin-top:22px; font-size:8px; color:var(--dim); letter-spacing:0.1em; }
+
+  .caff-tips { margin-top:14px; display:flex; flex-direction:column; gap:6px; }
+  .caff-tip { display:flex; gap:10px; align-items:flex-start; padding:9px 10px; border:1px solid rgba(232,224,208,0.06); border-radius:4px; }
+  .caff-tip-icon { font-size:12px; flex-shrink:0; }
+  .caff-tip-text { font-size:8px; color:var(--dim); letter-spacing:0.1em; line-height:1.7; }
+  /* 12h/24h toggle */
+  .time-fmt-toggle { display:flex; gap:4px; justify-content:center; margin-top:10px; }
+  .fmt-btn { padding:5px 14px; font-family:'Courier New',Courier,monospace; font-size:8px; letter-spacing:0.25em; text-transform:uppercase; border:1px solid rgba(232,224,208,0.1); background:transparent; color:var(--dim); cursor:pointer; transition:all 0.2s; border-radius:2px; }
+  .fmt-btn.active { border-color:var(--gold-dim); background:rgba(201,169,110,0.08); color:var(--gold); }
+
+  /* Buffer slider */
+  .buffer-slider { width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:rgba(232,224,208,0.1); outline:none; margin-top:8px; }
+  .buffer-slider::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--gold); cursor:pointer; border:2px solid var(--night); }
+  .buffer-slider::-moz-range-thumb { width:16px; height:16px; border-radius:50%; background:var(--gold); cursor:pointer; border:2px solid var(--night); }
+
+  .mode-tab.caff-active { background:rgba(180,130,60,0.1); color:var(--caff); border:1px solid rgba(180,130,60,0.2); }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
+  @keyframes slideIn  { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 16px 72px; }
+    .header { margin-bottom: 26px; }
+    .card { padding:24px 18px; }
+    .sleep-title { font-size:24px; }
+    .panel-hero .sleep-title { font-size:22px; }
+    .intro-panel { padding:22px 18px; }
+    .intro-title { font-size:24px; }
+    .mode-tab { font-size:9px; letter-spacing:0.12em; }
+    .option-main, .nap-result-main, .caff-cutoff-main { flex-direction:column; align-items:flex-start; gap:10px; }
+    .option-right, .nap-right, .caff-right { align-items:flex-start; }
+    .nap-tip { max-width:none; text-align:left; }
+    .info-strip { flex-direction:column; gap:10px; }
+    .divider { width:auto; height:1px; }
+    .info-item { padding:0; }
+  }
+</style>
+
+</head>
+<body style="background:#0a0c14;color:#e8e0d0">
+<div class="container">
+
+  <div class="intro-card-shell" id="intro-shell">
+    <div class="intro-panel">
+      <div class="intro-kicker">How Circadia Works</div>
+      <div class="intro-title">Sleep cycles matter more than just total hours.</div>
+      <div class="intro-points">
+        <div class="intro-pill">1 cycle ≈ 90 min</div>
+        <div class="intro-pill">Best for most adults: 5–6 cycles</div>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn primary" onclick="closeIntro(true)">Start Calculating</button>
+        <button class="intro-btn secondary" onclick="closeIntro(false)">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="header">
+    <span class="moon-icon">☽</span>
+    <span class="brand">CIRCADIA</span>
+    <span class="tagline">Sleep Cycle Intelligence</span>
+    <div class="time-fmt-toggle">
+      <button class="fmt-btn active" id="fmt-12" onclick="setTimeFmt('12')">12h</button>
+      <button class="fmt-btn" id="fmt-24" onclick="setTimeFmt('24')">24h</button>
+    </div>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-sleep" onclick="switchTab('sleep')">☾ Sleep</button>
+    <button class="mode-tab" id="tab-nap" onclick="switchTab('nap')">⚡ Nap</button>
+    <button class="mode-tab" id="tab-caff" onclick="switchTab('caff')">☕ Caffeine</button>
+  </div>
+  <!-- SLEEP PANEL -->
+
+  <div id="panel-sleep">
+    <div class="sleep-hero">
+      <div class="sleep-kicker">Core Sleep Flow</div>
+      <div class="sleep-title" id="sleep-lead">Plan your ideal bedtime from the time you want to wake up.</div>
+      <div class="sleep-stats">
+        <div class="sleep-stat">1 cycle ≈ 90 min</div>
+        <div class="sleep-stat">Most adults feel best at 5–6 cycles</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-label">Configure Your Sleep</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-wakeup" onclick="setMode('wakeup')">Wake up at</button>
+        <button class="toggle-btn" id="btn-sleep" onclick="setMode('sleep')">Sleep at</button>
+      </div>
+      <div class="input-group">
+        <label id="time-label">Wake-up time</label>
+        <input type="time" class="time-input" id="timeInput">
+      </div>
+      <div class="input-group">
+        <label>Preferred sleep cycles</label>
+        <div class="cycles-row">
+          <button class="cycle-btn" onclick="setCycles(4)">4 · 6h</button>
+          <button class="cycle-btn active" onclick="setCycles(5)">5 · 7.5h</button>
+          <button class="cycle-btn" onclick="setCycles(6)">6 · 9h</button>
+          <button class="cycle-btn" onclick="setCycles(0)">All</button>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom:12px">
+        <label>Fall-asleep buffer — <span id="buffer-val">15</span> min</label>
+        <input type="range" id="buffer-slider" min="5" max="45" step="5" value="15"
+          class="buffer-slider" oninput="updateBuffer(this.value)">
+      </div>
+      <button class="calc-btn" onclick="calculate()">Calculate Sleep Times</button>
+      <div id="error" style="display:none" class="error-msg"></div>
+    </div>
+
+<div id="results" style="display:none" class="results card">
+  <div class="section-label">Best Matches</div>
+  <div class="results-sub" id="results-sub"></div>
+  <div class="sleep-options" id="sleep-options"></div>
+</div>
+
+<div id="info-strip" style="display:none" class="info-strip">
+  <div class="info-item"><div class="info-label">Target</div><div class="info-value" id="info-target">7:00 AM</div></div>
+  <div class="divider"></div>
+  <div class="info-item"><div class="info-label">Cycles</div><div class="info-value" id="info-cycles">5 cycles</div></div>
+  <div class="divider"></div>
+  <div class="info-item"><div class="info-label">Buffer</div><div class="info-value" id="info-buffer">15 min</div></div>
+</div>
+
+  </div>
+
+  <!-- NAP PANEL -->
+
+  <div id="panel-nap" style="display:none">
+      <div class="panel-hero cyan-tone">
+      <div class="sleep-kicker">Reset Fast</div>
+      <div class="sleep-title">Use naps for recovery without wrecking tonight's sleep.</div>
+    </div>
+    <div class="card nap-card">
+      <div class="section-label cyan">Configure Your Nap</div>
+      <div class="input-group">
+        <label>I want to start napping at</label>
+        <input type="time" class="time-input" id="napInput">
+      </div>
+      <div class="input-group">
+        <label>Nap type</label>
+        <div class="nap-row">
+      <button class="nap-btn" onclick="setNap(20,'power',this)">Power<br><span style="opacity:.5">20 min</span></button>
+      <button class="nap-btn" onclick="setNap(30,'recharge',this)">Recharge<br><span style="opacity:.5">30 min</span></button>
+      <button class="nap-btn active" onclick="setNap(90,'full',this)">Full Cycle<br><span style="opacity:.5">90 min</span></button>
+      <button class="nap-btn" onclick="setNap(0,'custom',this)">Custom<br><span style="opacity:.5">set mins</span></button>
+        </div>
+      </div>
+      <div id="custom-nap-group" style="display:none" class="input-group">
+        <label>Duration (minutes)</label>
+        <input type="number" class="time-input" id="customNapMins" value="45" min="10" max="180" style="font-size:22px;">
+      </div>
+      <button class="calc-btn nap-calc" onclick="calculateNap()">Calculate Wake Time</button>
+      <div id="nap-error" style="display:none" class="error-msg"></div>
+    </div>
+
+<div id="nap-results" style="display:none" class="card nap-card">
+  <div class="section-label cyan">Your Nap Window</div>
+  <div id="nap-output"></div>
+</div>
+
+  </div>
+  <!-- CAFFEINE PANEL -->
+  <div id="panel-caff" style="display:none">
+    <div class="panel-hero caff-tone">
+      <div class="sleep-kicker">Protect Tonight</div>
+      <div class="sleep-title">Find the last caffeine window that still respects your bedtime.</div>
+    </div>
+    <div class="card caff-card">
+      <div class="section-label caff">☕ Caffeine Cutoff</div>
+      <div class="input-group">
+        <label>My wake-up time</label>
+        <input type="time" class="time-input" id="caffWakeInput">
+      </div>
+      <div class="input-group">
+        <label>My target bedtime</label>
+        <input type="time" class="time-input" id="caffBedInput">
+      </div>
+      <div class="input-group">
+        <label>My caffeine sensitivity</label>
+        <div class="cycles-row">
+          <button class="caff-sens-btn" onclick="setCaffSens('low',this)">Low</button>
+          <button class="caff-sens-btn active" onclick="setCaffSens('medium',this)">Medium</button>
+          <button class="caff-sens-btn" onclick="setCaffSens('high',this)">High</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Caffeine today</label>
+        <div class="caff-drinks-row" id="caff-drinks-row">
+          <button class="caff-drink-btn active" data-mg="80" onclick="toggleDrink(this)">Espresso<br><span>80mg</span></button>
+          <button class="caff-drink-btn" data-mg="140" onclick="toggleDrink(this)">Filter<br><span>140mg</span></button>
+          <button class="caff-drink-btn" data-mg="40" onclick="toggleDrink(this)">Green Tea<br><span>40mg</span></button>
+          <button class="caff-drink-btn" data-mg="80" onclick="toggleDrink(this)">Energy<br><span>80mg+</span></button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+          <input type="number" id="custom-mg-input" placeholder="Custom mg" min="0" max="1000"
+            class="time-input" style="font-size:16px;padding:7px 10px;flex:1"
+            oninput="updateCaffTotal()">
+          <span style="font-size:8px;color:var(--dim);letter-spacing:0.15em;white-space:nowrap">mg</span>
+        </div>
+        <div class="hint-text" id="caff-total-hint">80mg selected</div>
+      </div>
+      <button class="calc-btn caff-calc" onclick="calculateCaffeine()">Calculate Cutoff Time</button>
+    </div>
+    <div id="caff-results" style="display:none" class="card caff-card">
+      <div class="section-label caff">Your Caffeine Window</div>
+      <div id="caff-output"></div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  // -- STATE --
+  let mode = 'wakeup', selectedCycles = 5, napMins = 90, napType = 'full';
+  let recIdx = 0;
+  let timeFmt = '12'; // '12' or '24'
+  let BUFFER = 15;    // adjustable fall-asleep buffer
+  const CYCLE = 90;
+  let activeTab = 'sleep';
+  let touchStartX = 0, touchStartY = 0, wheelLock = false;
+
+  // Per-cycle stage distribution (light%, deep%, rem%)
+  const stages = [
+    {l:55,d:35,r:10}, // cycle 1 — lots of deep
+    {l:50,d:30,r:20},
+    {l:50,d:20,r:30},
+    {l:50,d:15,r:35},
+    {l:55,d:10,r:35}, // cycle 5 — lots of REM
+    {l:60,d:5, r:35},
+  ];
+
+  const napHints = {
+    power:   'Power nap: light sleep only. Boosts alertness with zero grogginess.',
+    recharge:'Recharge nap: light + early deep. Great for memory consolidation.',
+    full:    'Full cycle: light → deep → REM. Wake feeling fully restored.',
+    custom:  'Custom duration. Avoid 45–75 min — risk of waking mid-deep-sleep.'
+  };
+
+  // -- TABS --
+  const ALL_TABS = ['sleep','nap','caff'];
+  const TAB_ACTIVE_CLASS = { sleep:'active', nap:'nap-active', caff:'caff-active' };
+
+  function switchTab(tab) {
+    activeTab = tab;
+    ALL_TABS.forEach(t => {
+      document.getElementById('tab-'+t).className = 'mode-tab' + (t===tab ? ' '+TAB_ACTIVE_CLASS[t] : '');
+      document.getElementById('panel-'+t).style.display = t===tab ? 'block' : 'none';
+    });
+    if (typeof trackTab === 'function') trackTab(tab);
+  }
+
+  function stepTab(direction) {
+    const idx = ALL_TABS.indexOf(activeTab);
+    if (idx < 0) return;
+    const next = idx + direction;
+    if (next < 0 || next >= ALL_TABS.length) return;
+    switchTab(ALL_TABS[next]);
+  }
+
+  function shouldIgnoreGesture(target) {
+    return !!(target && typeof target.closest === 'function' && target.closest('input, textarea, select, button'));
+  }
+
+  function bindTabGestures() {
+    document.addEventListener('touchstart', (event) => {
+      if (shouldIgnoreGesture(event.target)) return;
+      const touch = event.changedTouches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (event) => {
+      if (shouldIgnoreGesture(event.target)) return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+      stepTab(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    document.addEventListener('wheel', (event) => {
+      if (shouldIgnoreGesture(event.target) || wheelLock) return;
+      if (Math.abs(event.deltaY) < 24 && Math.abs(event.deltaX) < 24) return;
+      const primaryDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      wheelLock = true;
+      stepTab(primaryDelta > 0 ? 1 : -1);
+      setTimeout(() => { wheelLock = false; }, 450);
+    }, { passive: true });
+  }
+
+  // -- SLEEP MODE --
+  function setMode(m) {
+    mode = m;
+    document.getElementById('btn-wakeup').classList.toggle('active', m==='wakeup');
+    document.getElementById('btn-sleep').classList.toggle('active', m==='sleep');
+    document.getElementById('time-label').textContent = m==='wakeup'?'Wake-up time':'Bedtime';
+    document.getElementById('sleep-lead').textContent = m==='wakeup'
+      ? 'Plan your ideal bedtime from the time you want to wake up.'
+      : 'Plan your best wake-up windows from the time you expect to sleep.';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('info-strip').style.display = 'none';
+  }
+
+  function setCycles(n) {
+    selectedCycles = n;
+    document.querySelectorAll('.cycle-btn').forEach((b,i)=>b.classList.toggle('active',[4,5,6,0][i]===n));
+  }
+
+  // -- NAP MODE --
+  function setNap(mins, type, btn) {
+    napMins = mins; napType = type;
+    document.querySelectorAll('.nap-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('custom-nap-group').style.display = type==='custom'?'flex':'none';
+    document.getElementById('nap-results').style.display = 'none';
+    document.getElementById('nap-error').style.display = 'none';
+  }
+
+  // -- MAIN CALCULATE --
+  function calculate() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('info-strip').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+
+    const val = document.getElementById('timeInput').value;
+    if (!val) { showErr('error','Please enter a valid time.'); return; }
+
+    const [h,m] = val.split(':').map(Number);
+    const anchor = new Date(); anchor.setHours(h,m,0,0);
+
+    const list = selectedCycles===0?[3,4,5,6]:[selectedCycles-1,selectedCycles,selectedCycles+1].filter(c=>c>=2&&c<=7);
+
+    const options = list.map(c => {
+      const t = new Date(anchor);
+      const total = c*CYCLE + BUFFER;
+      if (mode==='wakeup') t.setMinutes(t.getMinutes()-total);
+      else                 t.setMinutes(t.getMinutes()+total);
+      return {time:t, cycles:c, sleepMins:c*CYCLE};
+    });
+
+    const rec = selectedCycles===0
+      ? (options.find(o=>o.cycles===5)||options[1])
+      : (options.find(o=>o.cycles===selectedCycles)||options[Math.floor(options.length/2)]);
+    recIdx = options.findIndex(o=>o.cycles===rec.cycles);
+    if (recIdx<0) recIdx=0;
+
+    const container = document.getElementById('sleep-options');
+    container.innerHTML = '';
+
+    options.forEach(opt => {
+      const isRec = opt.cycles===rec.cycles;
+      const div = document.createElement('div');
+      div.className = 'sleep-option'+(isRec?' recommended':'');
+
+      div.innerHTML = `
+        <div class="option-main">
+          <div class="option-left">
+            <div class="option-time">${formatTime(opt.time)}</div>
+            <div class="option-meta">${mode==='wakeup'?'go to sleep':'wake up at '+formatTime(anchor)}</div>
+          </div>
+          <div class="option-right">
+            ${isRec?'<span class="rec-tag">★ optimal</span>':''}
+            <span class="cycles-badge">${opt.cycles} cycles</span>
+            <span class="duration-text">${fmtDur(opt.sleepMins)} sleep</span>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="breakdown-btn" style="flex:1" onclick="toggleBreakdown(this,${opt.cycles})">✦ Sleep Breakdown</button>
+        </div>
+        <div class="breakdown-panel">${buildBreakdown(opt.cycles)}</div>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById('results-sub').textContent = mode==='wakeup'
+      ? `To wake at ${formatTime(anchor)}, sleep at:`
+      : `Sleeping at ${formatTime(anchor)}, wake at:`;
+    document.getElementById('info-target').textContent = formatTime(anchor);
+    document.getElementById('info-cycles').textContent = selectedCycles===0 ? 'All cycles' : `${selectedCycles} cycles`;
+    document.getElementById('info-buffer').textContent = `${BUFFER} min`;
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('info-strip').style.display = 'flex';
+    if (typeof trackCalc === 'function') trackCalc('sleep');
+  }
+
+  // -- NAP CALCULATE --
+  function calculateNap() {
+    document.getElementById('nap-error').style.display = 'none';
+    const val = document.getElementById('napInput').value;
+    if (!val) { showErr('nap-error','Please enter a start time.'); return; }
+
+    const [h,m] = val.split(':').map(Number);
+    const start = new Date(); start.setHours(h,m,0,0);
+
+    let dur = napMins;
+    if (napType==='custom') {
+      dur = parseInt(document.getElementById('customNapMins').value)||45;
+      if (dur<10||dur>180){ showErr('nap-error','Duration must be 10–180 min.'); return; }
+    }
+
+    const wake = new Date(start.getTime()+dur*60000);
+
+    const info = {
+      power:   {label:'Light sleep only', benefit:'Instant alertness boost'},
+      recharge:{label:'Light + deep', benefit:'Memory consolidation'},
+      full:    {label:'Full sleep cycle', benefit:'Complete restoration'},
+      custom:  {label:'Mixed stages', benefit:'Varies with duration'}
+    }[napType];
+
+    const warnHtml = (dur>=45&&dur<75)
+      ? `<div class="warn-strip">⚠ This duration risks waking mid-deep-sleep (sleep inertia). Aim for 30 min or 90 min instead.</div>` : '';
+
+    const bdHtml = (napType==='full'||(napType==='custom'&&dur>=90))
+      ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(232,224,208,0.06)">
+           <div class="bd-title">Stage Breakdown (1 cycle)</div>
+           ${buildBreakdown(1)}
+         </div>` : '';
+
+    document.getElementById('nap-output').innerHTML = `
+      <div class="nap-result-main">
+        <div>
+          <div class="nap-wake-time">${formatTime(wake)}</div>
+          <div class="nap-meta">${dur} min · started ${formatTime(start)}</div>
+        </div>
+        <div class="nap-right">
+          <span class="nap-badge">${info.label}</span>
+          <div class="nap-tip">${info.benefit}</div>
+        </div>
+      </div>
+      <div class="result-summary">Best for: <strong style="color:var(--moon)">${info.benefit}</strong>.</div>
+      ${warnHtml}
+      ${bdHtml}
+    `;
+
+    document.getElementById('nap-results').style.display = 'block';
+    if (typeof trackCalc === 'function') trackCalc('nap');
+  }
+
+  // -- BREAKDOWN --
+  function toggleBreakdown(btn, cycles) {
+    const panel = btn.closest('.sleep-option').querySelector('.breakdown-panel');
+    const open = panel.classList.toggle('visible');
+    btn.classList.toggle('open', open);
+    btn.textContent = open ? '✕ Close' : '✦ Sleep Breakdown';
+  }
+
+  function buildBreakdown(cycles) {
+    const n = Math.min(cycles, stages.length);
+    let tl=0, td=0, tr=0;
+    for (let i=0;i<n;i++){tl+=stages[i].l; td+=stages[i].d; tr+=stages[i].r;}
+    const al=Math.round(tl/n), ad=Math.round(td/n), ar=Math.round(tr/n);
+    const total = cycles*CYCLE;
+    const lm=Math.round(total*al/100), dm=Math.round(total*ad/100), rm=Math.round(total*ar/100);
+
+    // build timeline
+    let segs='';
+    for (let c=0;c<cycles;c++){
+      const s=stages[Math.min(c,stages.length-1)];
+      const ls=Math.round(s.l/100*6), ds=Math.round(s.d/100*6), rs=6-ls-ds;
+      for(let i=0;i<ls;i++) segs+=`<div class="tl-seg ls"></div>`;
+      for(let i=0;i<ds;i++) segs+=`<div class="tl-seg ds"></div>`;
+      for(let i=0;i<Math.max(rs,0);i++) segs+=`<div class="tl-seg rs"></div>`;
+    }
+
+    return `
+      <div class="bd-title">Stage Breakdown${cycles>1?' — '+cycles+' cycles':''}</div>
+      <div class="stage-bars">
+        <div class="stage-row">
+          <span class="stage-label">Light</span>
+          <div class="stage-bar-wrap"><div class="stage-bar light" style="width:${al}%"></div></div>
+          <span class="stage-val">${lm}m</span>
+        </div>
+        <div class="stage-row">
+          <span class="stage-label">Deep</span>
+          <div class="stage-bar-wrap"><div class="stage-bar deep" style="width:${ad}%"></div></div>
+          <span class="stage-val">${dm}m</span>
+        </div>
+        <div class="stage-row">
+          <span class="stage-label">REM</span>
+          <div class="stage-bar-wrap"><div class="stage-bar rem" style="width:${ar}%"></div></div>
+          <span class="stage-val">${rm}m</span>
+        </div>
+      </div>
+      <div class="stage-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#5dbfbf"></div>Light</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#9b7ec8"></div>Deep (SWS)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c9a96e"></div>REM</div>
+      </div>
+      <div class="cycle-timeline">
+        <div class="tl-label">Progression across night</div>
+        <div class="tl-track">${segs}</div>
+        <div class="tl-ends"><span>Sleep</span><span>${cycles} cycles · ${fmtDur(cycles*90)}</span><span>Wake</span></div>
+      </div>
+      <div class="bd-note">Early cycles: deep sleep dominates (physical repair).<br>Later cycles: REM dominates (memory, creativity, emotion).</div>
+    `;
+  }
+
+  // -- TOAST --
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 3200);
+  }
+
+  // -- TIME FORMAT --
+  function setTimeFmt(fmt) {
+    timeFmt = fmt;
+    document.getElementById('fmt-12').classList.toggle('active', fmt==='12');
+    document.getElementById('fmt-24').classList.toggle('active', fmt==='24');
+    // Re-render if results are showing
+    if (document.getElementById('results').style.display !== 'none') calculate();
+    if (document.getElementById('nap-results').style.display !== 'none') calculateNap();
+    if (document.getElementById('caff-results').style.display !== 'none') calculateCaffeine();
+  }
+
+  function formatTime(d) {
+    const h = d.getHours(), m = d.getMinutes();
+    if (timeFmt === '24') {
+      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+    }
+    const ap = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${m.toString().padStart(2,'0')} ${ap}`;
+  }
+
+  // -- BUFFER SLIDER --
+  function updateBuffer(val) {
+    BUFFER = parseInt(val);
+    document.getElementById('buffer-val').textContent = val;
+  }
+
+  function closeIntro(rememberChoice) {
+    document.getElementById('intro-shell').classList.add('hidden');
+    if (rememberChoice || rememberChoice === false) {
+      try { localStorage.setItem('circadia_intro_seen', '1'); } catch (err) {}
+    }
+  }
+
+  function maybeShowIntro() {
+    try {
+      if (localStorage.getItem('circadia_intro_seen') === '1') {
+        document.getElementById('intro-shell').classList.add('hidden');
+      }
+    } catch (err) {}
+  }
+
+  // -- UTILS --
+  function fmtDur(mins) {
+    const h=Math.floor(mins/60), m=mins%60;
+    return m===0?`${h}h`:`${h}h ${m}m`;
+  }
+  function showErr(id, msg) {
+    const e=document.getElementById(id); e.textContent=msg; e.style.display='block';
+  }
+
+  // ==========================================
+  // CAFFEINE CUTOFF CALCULATOR
+  // ==========================================
+  let caffSens = 'medium'; // low=8h, medium=10h, high=12h to clear
+
+  const SENS_HOURS = { low:8, medium:10, high:12 };
+  const SENS_HINTS = {
+    low:   'Low: fast metaboliser. Caffeine clears in ~8h.',
+    medium:'Medium: caffeine takes ~10h to clear sufficiently.',
+    high:  'High: slow metaboliser. Allow 12h+ for clearance.'
+  };
+  function setCaffSens(s, btn) {
+    caffSens = s;
+    document.querySelectorAll('.caff-sens-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function toggleDrink(btn) {
+    btn.classList.toggle('active');
+    updateCaffTotal();
+  }
+
+  function updateCaffTotal() {
+    const btns = document.querySelectorAll('.caff-drink-btn');
+    let total = 0;
+    btns.forEach(b => { if (b.classList.contains('active')) total += parseInt(b.dataset.mg); });
+    const custom = parseInt(document.getElementById('custom-mg-input').value) || 0;
+    total += custom;
+    document.getElementById('caff-total-hint').textContent = `${total}mg selected`;
+  }
+
+  function calculateCaffeine() {
+    const wakeVal = document.getElementById('caffWakeInput').value;
+    const bedVal  = document.getElementById('caffBedInput').value;
+    if (!wakeVal || !bedVal) { showToast('Please enter both wake and bed times'); return; }
+
+    const [wh,wm] = wakeVal.split(':').map(Number);
+    const [bh,bm] = bedVal.split(':').map(Number);
+
+    const wake = new Date(); wake.setHours(wh,wm,0,0);
+    const bed  = new Date(); bed.setHours(bh,bm,0,0);
+    if (bed <= wake) bed.setDate(bed.getDate()+1);
+
+    // Total caffeine selected
+    const btns = document.querySelectorAll('.caff-drink-btn');
+    let totalMg = 0;
+    btns.forEach(b => { if (b.classList.contains('active')) totalMg += parseInt(b.dataset.mg); });
+    totalMg += parseInt(document.getElementById('custom-mg-input').value) || 0;
+
+    const clearHours = SENS_HOURS[caffSens];
+    const targetBedMg = 20;
+    const effectiveClearHours = totalMg > targetBedMg
+      ? Math.max(clearHours, 6 * Math.log2(totalMg / targetBedMg))
+      : clearHours;
+    // Last safe coffee = bedtime minus clearance window
+    const cutoff = new Date(bed.getTime() - effectiveClearHours * 60 * 60 * 1000);
+
+    // Estimate residual caffeine at bedtime if the final drink happens at cutoff.
+    const remainMg = totalMg > 0 ? totalMg * Math.pow(0.5, effectiveClearHours / 6) : 0;
+    const remainPct = totalMg > 0 ? Math.max(1, Math.round((remainMg / totalMg) * 100)) : 0;
+
+    // Is cutoff before wake time? (would mean can't have any caffeine)
+    const noCaffeine = cutoff <= wake;
+
+    // Safe window: wake → cutoff
+    const safeHours = Math.max(0, (cutoff - wake) / (60*60*1000));
+
+    // Timeline: wake=0%, cutoff=safeHours/totalWindow, bed=100%
+    const totalWindow = (bed - wake) / (60*60*1000);
+    const cutoffPct = noCaffeine ? 0 : Math.min((safeHours / totalWindow) * 100, 95);
+
+    const tips = [
+      { icon:'💧', text:'Start with water first. Dehydration often feels like low energy.' },
+      { icon:'⏰', text:'Try to delay caffeine briefly after waking instead of using it immediately.' },
+      { icon:'🍵', text:'After your cutoff, switch to decaf, herbal tea, or water.' },
+    ];
+    const tipsHtml = tips.map(t=>`<div class="caff-tip"><span class="caff-tip-icon">${t.icon}</span><span class="caff-tip-text">${t.text}</span></div>`).join('');
+
+    document.getElementById('caff-output').innerHTML = `
+      <div class="caff-cutoff-main">
+        <div>
+          <div class="caff-cutoff-time">${noCaffeine ? 'None today' : formatTime(cutoff)}</div>
+          <div class="caff-cutoff-label">${noCaffeine ? 'Avoid caffeine — bed too soon after wake' : 'last safe cup · to sleep at '+formatTime(bed)}</div>
+        </div>
+        <div class="caff-right">
+          <span class="caff-badge">${effectiveClearHours.toFixed(1)}h clearance</span>
+          <span class="caff-badge" style="margin-top:4px">${totalMg}mg selected</span>
+        </div>
+      </div>
+      <div class="caff-timeline">
+        <div class="caff-tl-label">Your day — caffeine safe zone</div>
+        <div class="caff-tl-track">
+          <div class="caff-tl-fill" style="width:${cutoffPct}%"></div>
+          ${!noCaffeine ? `<div class="caff-tl-marker" style="left:${cutoffPct}%">
+            <div class="caff-tl-marker-label" style="left:0">cutoff</div>
+          </div>` : ''}
+        </div>
+        <div class="caff-tl-ends"><span>Wake ${formatTime(wake)}</span><span>Bed ${formatTime(bed)}</span></div>
+      </div>
+      <div class="result-summary caff">
+        ${noCaffeine
+          ? '⚠ Your sleep window is too short for caffeine today.'
+          : `You have a <strong style="color:var(--moon)">${safeHours.toFixed(1)}h caffeine window</strong>. With ${totalMg}mg today, about ${Math.round(remainMg)}mg (${remainPct}%) may still be active at bedtime.`}
+      </div>
+      <div class="caff-tips" style="margin-top:14px">${tipsHtml}</div>
+    `;
+
+    document.getElementById('caff-results').style.display = 'block';
+    if (typeof trackCalc === 'function') trackCalc('caffeine');
+  }
+
+  function roundToNearest30(date) {
+    const rounded = new Date(date);
+    const remainder = rounded.getMinutes() % 30;
+    const delta = remainder >= 15 ? 30 - remainder : -remainder;
+    rounded.setMinutes(rounded.getMinutes() + delta, 0, 0);
+    return rounded;
+  }
+
+  // -- SET DEFAULTS TO CURRENT TIME --
+  (function() {
+    const now = new Date();
+    const hh = now.getHours().toString().padStart(2,'0');
+    const mm = now.getMinutes().toString().padStart(2,'0');
+    const currentTime = `${hh}:${mm}`;
+    // Sleep: default wake = now + 8h (round to nearest 30)
+    const wake = roundToNearest30(new Date(now.getTime() + 8*60*60*1000));
+    const wh = wake.getHours().toString().padStart(2,'0');
+    const wm = wake.getMinutes().toString().padStart(2,'0');
+    document.getElementById('timeInput').value = `${wh}:${wm}`;
+    // Nap: default = now
+    document.getElementById('napInput').value = currentTime;
+    // Caffeine wake = now, bed = now + 16h
+    document.getElementById('caffWakeInput').value = currentTime;
+    const bed = roundToNearest30(new Date(now.getTime() + 16*60*60*1000));
+    const bh = bed.getHours().toString().padStart(2,'0');
+    const bm = bed.getMinutes().toString().padStart(2,'0');
+    document.getElementById('caffBedInput').value = `${bh}:${bm}`;
+  })();
+
+  bindTabGestures();
+  maybeShowIntro();
+  calculate();
+</script>
+
+</body>
+</html>
